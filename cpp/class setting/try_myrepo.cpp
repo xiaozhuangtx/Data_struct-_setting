@@ -276,11 +276,62 @@ public:
     void printLeastTimePath (const std::string &start_city, const std::string &end_city);
         
     // 输出从起点城市到终点城市，中转次数最少的路径
-    //     void printLeastTransferPath (const std::string &sc, const std::string &ec);  
+    void printLeastTransferPath (const std::string &start_city, const std::string &end_city); 
 
     unordered_map<string, vector<LineNode>> graph;
 
 };
+void ALGraph::printLeastTransferPath (const std::string &start_city, const std::string &end_city){
+    vector<string> path;
+    vector<float> spend_money_list_temp;
+    vector<string> ranklist_temp;
+    vector<Time> STList_temp;
+    vector<Time> ETList_temp;
+    vector<vector<string>> Allpath;
+    getAllPath(start_city, end_city, Allpath,path);
+    //找出所有路径中中转次数最少的路径  Allpath 为所有能到达终点城市的路径
+    int min_transfer=INT_MAX;
+    for(int i=0;i<=Allpath.size()-1;i++)
+    {
+        vector<float> spend_money_list;
+        vector<string> ranklist;
+        vector<Time> STList;
+        vector<Time> ETList;
+        getinfofromPath(Allpath[i],ranklist,STList,ETList,spend_money_list);
+        int temp=0;
+        for(int j=0;j<Allpath[i].size()-2;j++)
+        {
+            if (ranklist[j]!=ranklist[j+1])
+            {
+                temp++;
+            }
+        }
+        if (temp<min_transfer)
+        {
+            min_transfer=temp;
+            path=Allpath[i];
+            spend_money_list_temp=spend_money_list;
+            ranklist_temp=ranklist;
+            STList_temp=STList;
+            ETList_temp=ETList;
+        }
+    }
+    //打印最少中转次数的路径
+    cout<<"最少中转次数的路径为："<<endl;
+    for(int i=0;i<path.size()-2;i++) //path.size()-1 为路径的长度 i不能取到path.size()-1 否则会越界
+    {
+        STList_temp[i+1].day=STList_temp[i].day;
+        ETList_temp[i+1].day=ETList_temp[i].day;        
+        if (ETList_temp[i]>=STList_temp[i+1])
+        {
+            STList_temp[i+1].day+=1;
+            ETList_temp[i+1].day+=1;
+        }    
+    }
+    for(int i=0;i<path.size()-1;i++) 
+            cout<<path[i]<<"  班次为："<<ranklist_temp[i]<<"  出发时间为:"<<STList_temp[i]<<" day"<<"  到达时间为"<< ETList_temp[i] <<"day"<<" -->"<<path[i+1]<<endl;        
+    
+}
 void ALGraph::printLeastTimePath (const std::string &start_city, const std::string &end_city)
 {
     vector<string> path;
@@ -299,24 +350,24 @@ void ALGraph::printLeastTimePath (const std::string &start_city, const std::stri
         vector<Time> STList;
         vector<Time> ETList;
         getinfofromPath(Allpath[i],ranklist,STList,ETList,spend_money_list);
-        // for(int j=0;j<Allpath[j].size()-1;j++)
-        // {
-        //     STList[j+1].day=STList[j].day;
-        //     ETList[j+1].day=ETList[j].day;        
-        //     if (ETList[j]>=STList[j+1])
-        //     {
-        //         STList[j+1].day+=1;
-        //         ETList[j+1].day+=1;
-        //     }    
-        // }
+        for(int j=0;j<Allpath[i].size()-2;j++)
+        {
+            STList[j+1].day=STList[j].day;
+            ETList[j+1].day=ETList[j].day;        
+            if (ETList[j]>=STList[j+1])
+            {
+                STList[j+1].day+=1;
+                ETList[j+1].day+=1;
+            }    
+        }
         if(min_time>ETList[0].day*24*60+ETList[0].getTotalMintue())
         {
             min_time=ETList[0].day*24*60+ETList[0].getTotalMintue();
-            path=Allpath[i];
             spend_money_list_temp=spend_money_list;
             ranklist_temp=ranklist;
             STList_temp=STList;
             ETList_temp=ETList;
+            path=Allpath[i];
         }       
     }
     //打印最快的路径
@@ -361,7 +412,7 @@ void ALGraph::printLeastMoneyPath (const std::string &start_city, const std::str
     }
     //打印最少花费的路径
     cout<<"最少花费的路径为："<<endl;
-    for(int i=0;i<path.size()-1;i++)
+    for(int i=0;i<path.size()-1;i++) //path.size()-1 为路径的长度 i不能取到path.size()-1 否则会越界
     {
         STList_temp[i+1].day=STList_temp[i].day;
         ETList_temp[i+1].day=ETList_temp[i].day;        
@@ -453,12 +504,15 @@ void ALGraph::printPathsByCity (const std::string &sc, const std::string &ec)
         for(int j=0;j<Allpath[i].size()-2;j++)
         {   
             STList[i][j+1].day=STList[i][j].day;
-            ETList[i][j+1].day=ETList[i][j].day;        
-            if (ETList[i][j]>=STList[i][j+1])
+            ETList[i][j+1].day=ETList[i][j].day; 
+             if (ETList[i][j]>=STList[i][j+1])
             {
                 STList[i][j+1].day+=1;
                 ETList[i][j+1].day+=1;
-            }    
+            }         
+        }
+        for(int j=0;j<Allpath[i].size()-1;j++)
+        {        
             cout<<Allpath[i][j]<<"  班次为："<<ranklist[i][j]<<"  出发时间为:"<<STList[i][j]<<" day"<<"  到达时间为"<< ETList[i][j] <<"day"<<" -->"<<Allpath[i][j+1]<<endl;        
         }
     }
@@ -732,8 +786,10 @@ int main()
 {
   //从 txt 文件中读取数据
     ALGraph T("Train.txt");
-    T.printPathsByCity ("上海", "天津");
-    T.printLeastMoneyPath("上海", "天津");
-    T.printLeastTimePath("上海", "天津");
+    //  T.printPathsByCity ("上海", "天津");
+    //  T.printPathsByCity ("北京", "广州");
+    // T.printLeastMoneyPath("上海", "天津");
+    // T.printLeastTimePath("上海", "天津");
+    T.printLeastTransferPath("上海", "天津");
     return 0;
 }
