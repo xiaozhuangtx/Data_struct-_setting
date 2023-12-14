@@ -1,3 +1,7 @@
+#ifndef TRY_MYREPO_HPP
+#define TRY_MYREPO_HPP
+
+
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -130,3 +134,5 @@ public:
     }
     
 };
+
+#endif // TRY_MYREPO_HPP

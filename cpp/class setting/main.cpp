@@ -1,13 +1,15 @@
-
 #include<iostream>
 #include<string>
 #include <fstream>
 #include <conio.h>
+#include"ALGraph.h"
 
 using namespace std;
 
 // 存储账号密码的文件路径
 const string accountFilePath = "accounts.txt";
+const char* Filename = "Train.txt";
+ALGraph graph(Filename);
 // 结构体表示账户信息
 struct Account {
     string account;
@@ -16,6 +18,92 @@ struct Account {
 void delay(int seconds) {
     clock_t start_time = clock();
     while (clock() < start_time + seconds * CLOCKS_PER_SEC);
+}
+
+void enter() {
+    char en = '1';
+    cout << "输入任意值返回...";
+    cin >> en;
+    while (en) {
+        if (en == '1')
+            continue;
+        else
+            break;
+    }
+}
+void add(string citys) {
+    char city = '1';
+    while (city) {
+        system("cls");
+        cout << endl << "城市是起始点or终止点" << endl;
+        cout << "    1.起始点" << endl << "    2.终止点" << endl;
+        cout << "请输入数字：";
+        cin >> city;
+        string ec, rank;
+        Time st, et;
+        float spt, spm;
+        switch (city) {
+        case '1':
+            cout << "请输入终点城市：";
+            cin >> ec;
+            cout << "请输入列车车次或航班信息：";
+            cin >> rank;
+            cout << "请输入发车时间：";
+            cin >> st;
+            cout << "请输入到达时间：";
+            cin >> et;
+            cout << "请输入需要花费的时间：";
+            cin >> spt;
+            cout << "请输入需要花费的金额：";
+            cin >> spm;
+            
+            break;
+        case '2':
+            cout << "请输入起点城市：";
+            cin >> ec;
+            cout << "请输入列车车次或航班信息：";
+            cin >> rank;
+            cout << "请输入发车时间：";
+            cin >> st;
+            cout << "请输入到达时间：";
+            cin >> et;
+            cout << "请输入需要花费的时间：";
+            cin >> spt;
+            cout << "请输入需要花费的金额：";
+            cin >> spm;
+            graph.addLine(ec, citys, st, et, spt, spm, rank);
+            break;
+        }
+        break;
+    }
+}
+void del(string citys) {
+    char city = '1';
+    while (city) {
+        system("cls");
+        cout << endl << "城市是起始点or终止点" << endl;
+        cout << "    1.起始点" << endl << "    2.终止点" << endl;
+        cout << "请输入数字：";
+        cin >> city;
+        string ec, rank;
+        switch (city) {
+        case '1':
+            cout << "请输入终点城市：";
+            cin >> ec;
+            cout << "请输入列车车次或航班信息：";
+            cin >> rank;
+            graph.delLine(citys, ec, rank);
+            break;
+        case '2':
+            cout << "请输入起点城市：";
+            cin >> ec;
+            cout << "请输入列车车次或航班信息：";
+            cin >> rank;
+            graph.delLine(ec, citys, rank);
+            break;
+        }
+        break;
+    }
 }
 void search() {
     char func = '1';
@@ -26,23 +114,61 @@ void search() {
         cout << "请选择下列操作之一" << endl;
         cout << "    1.查询两城市间，花费最少的路径" << endl;
         cout << "    2.查询两城市间，耗时最少的路径" << endl;
-        cout << "    3.显示所有城市" << endl;
-        cout << "    4.显示所有线路" << endl;
-        cout << "    5.查询两城市间，中转次数最少的路径" << endl;
+        cout << "    3.查询两城市间，中转次数最少的路径" << endl;
+        cout << "    4.显示所有城市" << endl;
+        cout << "    5.显示所有线路" << endl;
         cout << "    6.退出查询模式" << endl;
         cout << "请输入数字：";
         cin >> func;
+        string sc, ec;
         switch (func) {
+        case'1':
+            cout << "    1.查询两城市间，花费最少的路径" << endl;
+            cout << "输入要查询的起点城市：";
+            cin >> sc;
+            cout << "输入要查询的终点城市：";
+            cin >> ec;
+            graph.printLeastMoneyPath(sc, ec);
+            enter();
+            break;
+        case'2':
+            cout << "    2.查询两城市间，耗时最少的路径" << endl;
+            cout << "输入要查询的起点城市：";
+            cin >> sc;
+            cout << "输入要查询的终点城市：";
+            cin >> ec;
+            graph.printLeastTimePath(sc, ec);
+            enter();
+            break;
+        case'3':
+            cout << "    3.查询两城市间，中转次数最少的路径" << endl;
+            cout << "输入要查询的起点城市：";
+            cin >> sc;
+            cout << "输入要查询的终点城市：";
+            cin >> ec;
+            //graph.Least_transfer(sc, ec);
+            enter();
+            break;
+        case'4':
+            cout << "    4.显示所有城市" << endl;
+            graph.showAllCity();
+            enter();
+            break;
+        case'5':
+            cout << "    5.显示所有线路" << endl;
+            graph.showAllLine();
+            enter();
+            break;
+            break;
         case '6':
             system("cls");
             cout << "退出查询模式成功" << endl;
             delay(1);
             system("cls");
             break;
-
         default:
             cout << endl << "请输入正确数字!" << endl;
-            delay(0.5);
+            delay(1);
             system("cls");
             continue;
         }
@@ -50,28 +176,47 @@ void search() {
     }
 }
 void adminALG() {
-    char func2 = '1';
-    while (func2) {
+    char func = '1';
+    while (func) {
         system("cls");
         cout << "==============进入管理员模式==============" << endl << endl;
         cout << "请选择下列操作之一" << endl;
-        cout << "    1.从文件中添加城市" << endl;
-        cout << "    2.手动添加城市" << endl;
-        cout << "    3.删除城市" << endl;
-        cout << "    4.从文件中添加线路" << endl;
-        cout << "    5.手动添加线路" << endl;
-        cout << "    6.删除线路" << endl;
-        cout << "    7.进入查询模式" << endl;
-        cout << "    8.退出管理员模式" << endl;
+        cout << "    1.添加城市和线路" << endl;
+        cout << "    2.删除城市和线路" << endl;
+        cout << "    3.进入查询模式" << endl;
+        cout << "    4.退出管理员模式" << endl;
         cout << "请输入数字：";
-        cin>>func2;
+        cin>>func;
         cout << endl;
-        switch (func2) {
-        case '7':
+        string sc, ec,rank;
+        switch (func) {
+        case'1':
+            cout << "    1.添加城市线路" << endl;
+            cout << "输入要添加的城市：";
+            cin >> sc;
+            switch (graph.ifCityExist(sc)) {
+            case 1 or 2:
+                cout << "该城市已存在，无需重复添加。" << endl;
+                break;
+            default:
+                cout << "成功添加城市。" << endl;
+                break;
+            }
+            add(sc);
+            cout << "成功添加线路。" << endl;
+            delay(1);
+            system("cls");
+            break;
+        case'2':
+            cout << "    2.删除城市线路" << endl;
+            cout << "输入要删除的城市线路：";
+            cin >> sc;
+            break;
+        case'3':
             search();
             system("cls");
             break;
-        case '8':
+        case'4':
             system("cls");
             cout << "退出管理员模式成功" << endl;
             delay(1);
@@ -79,11 +224,11 @@ void adminALG() {
             break;
         default:
             cout << "请输入正确数字!" << endl;
-            delay(0.5);
+            delay(1);
             system("cls");
             continue;
         }
-        if (func2 == '8') break;
+        if (func == '8') break;
     }
 }
 void user() {
@@ -95,13 +240,51 @@ void user() {
         cout << "请选择下列操作之一" << endl;
         cout << "    1.查询两城市间，花费最少的路径" << endl;
         cout << "    2.查询两城市间，耗时最少的路径" << endl;
-        cout << "    3.显示所有城市" << endl;
-        cout << "    4.显示所有线路" << endl;
-        cout << "    5.查询两城市间，中转次数最少的路径" << endl;
+        cout << "    3.查询两城市间，中转次数最少的路径" << endl;
+        cout << "    4.显示所有城市" << endl;
+        cout << "    5.显示所有线路" << endl;
         cout << "    6.退出普通用户模式" << endl;
         cout << "请输入数字：";
         cin >> func1;
+        string sc, ec;
         switch (func1) {
+        case'1':
+            cout << "    1.查询两城市间，花费最少的路径" << endl;
+            cout << "输入要查询的起点城市：";
+            cin >> sc;
+            cout << "输入要查询的终点城市：";
+            cin >> ec;
+            graph.printLeastMoneyPath(sc, ec);
+            enter();
+            break;
+        case'2':
+            cout << "    2.查询两城市间，耗时最少的路径" << endl;
+            cout << "输入要查询的起点城市：";
+            cin >> sc;
+            cout << "输入要查询的终点城市：";
+            cin >> ec;
+            graph.printLeastTimePath(sc, ec);
+            enter();
+            continue;
+        case'3':
+            cout << "    3.查询两城市间，中转次数最少的路径"  << endl;
+            cout << "输入要查询的起点城市：";
+            cin >> sc;
+            cout << "输入要查询的终点城市：";
+            cin >> ec;
+            //graph.Least_transfer(sc, ec);
+            enter();
+            break;
+        case'4':
+            cout << "    4.显示所有城市" << endl;
+            graph.showAllCity();
+            enter();
+            break;
+        case'5':
+            cout << "    5.显示所有线路" << endl;
+            graph.showAllLine();
+            enter();
+            break;
         case '6':
             system("cls");
             cout << "退出普通用户模式成功" << endl;
@@ -110,7 +293,7 @@ void user() {
             break;
         default:
             cout <<endl<< "请输入正确数字!" << endl;
-            delay(0.5);
+            delay(1);
             system("cls");
             continue;
         }
@@ -249,7 +432,7 @@ void admit() {
             break;
         default:
             cout <<endl<< "请输入正确数字！" << endl;
-            delay(0.5);
+            delay(1);
             system("cls");
             continue;
         }
@@ -285,16 +468,14 @@ void choice() {
             break;
         default:
             cout << endl<< "请输入正确数字!" << endl;
-            delay(0.5);
+            delay(1);
             system("cls");
             continue;
         }
         if (controls == '3') break;
     }
 }
-
-int main() {
-    system("cls");
+void identity() {
     char id = '1';
     while (id) {
         cout << endl << "==============欢迎进入全国交通咨询系统==============" << endl;
@@ -316,13 +497,19 @@ int main() {
         case '3':
             break;
         default:
-            cout << endl<< "请输入正确数字!" << endl;
-            delay(0.5);
+            cout << endl << "请输入正确数字!" << endl;
+            delay(1);
             system("cls");
             break;
         }
         if (id == '3') break;
     }
     cout << endl << "==================感谢你的使用==================" << endl;
+}
+
+int main() {
+
+    identity();
     return 0;
 }
+
